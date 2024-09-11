@@ -1,0 +1,148 @@
+<%- layout("/layouts/boilerplate") %>
+<body>
+  <style>
+    .reduced-space {
+      display: block;
+      height: 5px; /* Adjust height as needed */
+    }
+  </style>
+
+  <h3><span class="reduced-space"></span>All Listings</h3>
+
+  <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1">
+    <% for(let listing of allListings) { %>
+    <a href="/listings/<%= listing._id %>" class="listing-link">
+      <div class="card col mb-4">
+        <div
+          id="carousel-<%= listing._id %>"
+          class="carousel slide carousel-image"
+        >
+          <!-- Carousel Indicators -->
+          <div class="carousel-indicators">
+            <% for(let i = 0; i < 3; i++) { %>
+            <button
+              type="button"
+              data-bs-target="#carousel-<%= listing._id %>"
+              data-bs-slide-to="<%= i %>"
+              class="<%= i === 0 ? 'active' : '' %>"
+              aria-current="<%= i === 0 ? 'true' : '' %>"
+              aria-label="Slide <%= i + 1 %>"
+            ></button>
+            <% } %>
+          </div>
+
+          <!-- Carousel Images -->
+          <div class="carousel-inner">
+            <% if (listing.images.length > 0) { %> <% for (let i = 0; i < 3;
+            i++) { %>
+            <div class="carousel-item <%= i === 0 ? 'active' : '' %>">
+              <img
+                src="<%= i < listing.images.length ? listing.images[i].url : listing.images[0].url %>"
+                class="d-block w-100 card-img-top"
+                alt="Listing Image"
+                style="height: 20rem"
+              />
+            </div>
+            <% } %> <% } else { %>
+            <!-- Default images if none provided -->
+            <div class="carousel-item active">
+              <img
+                src="https://via.placeholder.com/300x200.png?text=Default+Image+1"
+                class="d-block w-100"
+                alt="Default Image 1"
+                style="height: 20rem"
+              />
+            </div>
+            <div class="carousel-item">
+              <img
+                src="https://via.placeholder.com/300x200.png?text=Default+Image+2"
+                class="d-block w-100"
+                alt="Default Image 2"
+                style="height: 20rem"
+              />
+            </div>
+            <div class="carousel-item">
+              <img
+                src="https://via.placeholder.com/300x200.png?text=Default+Image+3"
+                class="d-block w-100"
+                alt="Default Image 3"
+                style="height: 20rem"
+              />
+            </div>
+            <% } %>
+          </div>
+
+          <!-- Carousel Controls -->
+          <button
+            class="carousel-control-prev custom-control"
+            type="button"
+            data-bs-target="#carousel-<%= listing._id %>"
+            data-bs-slide="prev"
+          >
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+          </button>
+          <button
+            class="carousel-control-next custom-control"
+            type="button"
+            data-bs-target="#carousel-<%= listing._id %>"
+            data-bs-slide="next"
+          >
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+          </button>
+        </div>
+
+        <div class="card-body">
+          <p class="card-text">
+            <b><%= listing.title %>,</b>
+            <% let loc=listing.location.trim(); %>
+            <b><%= loc %><br /></b>
+
+            &#8377;<%= listing.price.toLocaleString("en-IN") %>/night
+          </p>
+        </div>
+      </div>
+    </a>
+    <% } %>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      document.querySelectorAll(".carousel").forEach(function (carousel) {
+        var totalItems = carousel.querySelectorAll(".carousel-item").length;
+        var bsCarousel = new bootstrap.Carousel(carousel, {
+          interval: 2000, // Auto slide every 2 seconds
+          ride: false, // Don't auto-start
+        });
+
+        // Pause the carousel by default
+        bsCarousel.pause();
+
+        // Start sliding when the user hovers on the listing
+        carousel.parentElement.addEventListener("mouseenter", function () {
+          let currentIndex = 0;
+          bsCarousel.to(0); // Ensure it starts at the first image
+
+          function showNextImage() {
+            if (currentIndex < totalItems) {
+              bsCarousel.next();
+              currentIndex++;
+              setTimeout(showNextImage, 1500); // Wait for 2 seconds before showing the next image
+            } else {
+              bsCarousel.to(0); // Return to the first image after showing all images
+            }
+          }
+
+          showNextImage();
+        });
+
+        // Reset to the first image when hover ends
+        carousel.parentElement.addEventListener("mouseleave", function () {
+          bsCarousel.pause(); // Pause sliding
+          bsCarousel.to(0); // Always return to the first image
+        });
+      });
+    });
+  </script>
+</body>
